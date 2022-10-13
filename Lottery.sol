@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-contract Lottery2{
+contract Lottery{
 
     // Declaring Required State Variables
     address payable[] public participants;
@@ -26,24 +26,15 @@ contract Lottery2{
         return address(this).balance;
     }
 
-    // Generating a random no using a combination of block difficuly, timestamp & no of participants
-    function random() internal view returns(uint){
-       return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, participants.length)));
-    }
-
     // Finally we pick a winner by choosing a random winner and paying the Prize Money to the winner
-    //Then we reset the lottery
+    //at last, we reset the lottery participants for another round
     function pickWinner() public{
 
         require(msg.sender == manager);
         require (participants.length >= 3);
         
-        uint r = random();
-        address payable winner;
-        uint index = r % participants.length;
-       
-        winner = participants[index];
-        winner.transfer(getBalance());
+        participants[uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, 
+        participants.length))) % participants.length].transfer(address(this).balance);
         participants = new address payable[](0);
     }
 
